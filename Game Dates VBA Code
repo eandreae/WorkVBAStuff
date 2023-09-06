@@ -141,3 +141,7 @@ Sub update_GamesListDates()
     Wend
 
 End Sub
+
+Sub update_UpNextGates()
+    ' insert code here
+End Sub

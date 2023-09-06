@@ -140,7 +140,4 @@ Sub update_GamesListDates()
 
     Wend
 
-    
-
-
 End Sub

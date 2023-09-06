@@ -12,7 +12,7 @@ Sub update_gates()
     ClosedCheckRow = 2 ' ClosedCheckRow keeps track of which game data is being pulled from.
     
     ' This outer while loop increments 14 rows at a time, moving from game to game.
-    While Len(Range("D" & CStr(ClosedCheckRow)).Value) > 0
+    While Len(Range("D" & CStr(ClosedCheckRow)).Value) > 0 ' While "Closed" is not empty
     
         ' Set the target row to be searched at 1 below the header row of the game.
         LSearchRow = ClosedCheckRow + 1
@@ -65,6 +65,34 @@ Output:
         
     Wend
     
+End Sub
+
+' This Subroutine parses the output and returns it to the default state.
+Sub clear_gates()
+
+    ' Variable Declarations
+    Dim TargetRow As Integer
+    Dim TargetCol As Integer
+    Dim EmptyCheckRow As Integer
+    Dim ColRange As String
+
+    ' Initial values for variables
+    TargetRow = 2     ' Set to 2, since its the first Row where Data is output.
+    TargetCol = 8     ' Set to 8, since its the first Col where Data is output.
+    EmptyCheckRow = 2 ' Keeps track of the current row being edited.
+    ColRange = "H"    ' Set to H, since that's the column where data starts to be output.
+
+    ' TODO Iterate downwards, clearing both the data and color of the cells.
+
+    While Len(Range(ColRange & CStr(EmptyCheckRow)).Value) > 0
+        ' While there is data present, clear it.
+        Cells(TargetRow, TargetCol).Clear
+        Cells(TargetRow, TargetCol+1).Clear
+        Cells(TargetRow, TargetCol+2).Clear
+        TargetRow = TargetRow + 1
+        EmptyCheckRow = EmptyCheckRow + 1
+    Wend
+
 End Sub
 
 ' This subroutine parses through the inputted game dates, and outputs their unsorted Ho2C dates.

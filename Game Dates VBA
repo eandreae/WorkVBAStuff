@@ -1,0 +1,178 @@
+' This Subroutine parses the input game dates, and outputs the next gate for each game.
+Sub update_gates()
+    
+    ' Variable Declarations
+    Dim LSearchRow As Integer
+    Dim LPlaceRow As Integer
+    Dim ClosedCheckRow As Integer
+    
+    ' Initial values for each of the values.
+    LSearchRow = 3     ' LSearchRow moves down the rows following the conditions below.
+    LPlaceRow = 2      ' LPlacerow Controls where the output will be placed.
+    ClosedCheckRow = 2 ' ClosedCheckRow keeps track of which game data is being pulled from.
+    
+    ' This outer while loop increments 14 rows at a time, moving from game to game.
+    While Len(Range("D" & CStr(ClosedCheckRow)).Value) > 0
+    
+        ' Set the target row to be searched at 1 below the header row of the game.
+        LSearchRow = ClosedCheckRow + 1
+    
+        ' This inner while loop increments across each row, checking if the gate is closed.
+        While Len(Range("D" & CStr(LSearchRow)).Value) > 0
+            
+            ' If the gate is closed, increment over it
+            LSearchRow = LSearchRow + 1
+        
+        Wend
+        
+        ' Outside of the while loop, LSearchRow should be where the first open gate is.
+            
+Output:
+        ' Output the name & color of the game, setting it to bold.
+        Cells(LPlaceRow, 8).Value = Cells(ClosedCheckRow, 2).Value
+        Cells(LPlaceRow, 8).Font.Bold = True
+        Cells(LPlaceRow, 8).Interior.Color = Cells(ClosedCheckRow + 1, 2).Interior.Color
+        
+        ' Output the gate name and date.
+        Cells(LPlaceRow, 9).Value = Cells(LSearchRow, 2).Value
+        Cells(LPlaceRow, 10).Value = Cells(LSearchRow, 3).Value
+    
+        ' Increment LPlaceRow by 1, to prepare the next output
+        LPlaceRow = LPlaceRow + 1
+        
+        ' This while loop checks for repeated dates. Include gates with same dates.
+        While Cells(LSearchRow, 3).Value = Cells(LSearchRow + 1, 3).Value
+        
+            ' If the next row's gate shares the same date with the present row,
+            ' we need to include that date too.
+            
+            ' Increment LSearchRow by 1
+            LSearchRow = LSearchRow + 1
+            
+            ' Before outputting, check if the gate is closed.
+            If Cells(LSearchRow, 4).Value <> "X" Then
+            
+                ' If the gate is not closed, Jump back up to "Output"
+                ' To output the repeated date's gate.
+                GoTo Output
+                
+            End If
+            
+        Wend
+        
+        ' Increment ClosedCheckRow by 14 to prepare the next game.
+        ClosedCheckRow = ClosedCheckRow + 14
+        
+    Wend
+    
+End Sub
+
+' This subroutine parses through the inputted game dates, and outputs their unsorted Ho2C dates.
+Sub update_Ho2C()
+
+    ' Variable Declarations
+    Dim LSearchRow As Integer
+    Dim LPlaceRow As Integer
+    Dim ClosedCheckRow As Integer
+    
+    ' Initial values for each of the values.
+    LSearchRow = 3     ' LSearchRow moves down the rows following the conditions below.
+    LPlaceRow = 2      ' LPlacerow Controls where the output will be placed.
+    ClosedCheckRow = 2 ' ClosedCheckRow keeps track of which game data is being pulled from.
+    
+    ' This outer while loop increments 14 rows at a time, moving from game to game.
+    While Len(Range("D" & CStr(ClosedCheckRow)).Value) > 0
+    
+        ' Set the target row to be searched at 12 below the header row of the game.
+        LSearchRow = ClosedCheckRow + 12
+        
+        ' Check if the Ho2C gate has been closed.
+        If Len(Range("D" & CStr(LSearchRow)).Value) > 0 Then
+            
+            ' If the gate is closed, increment over it.
+            LSearchRow = LSearchRow + 1
+        
+        End If
+        
+        ' LSearchRow should now either be directly on the Ho2C gate, or blank.
+            
+Output:
+        ' Output the name & color of the game, setting it to bold.
+        Cells(LPlaceRow, 14).Value = Cells(ClosedCheckRow, 2).Value
+        Cells(LPlaceRow, 14).Font.Bold = True
+        Cells(LPlaceRow, 14).Interior.Color = Cells(ClosedCheckRow + 1, 2).Interior.Color
+        
+        ' Output the gate name and date.
+        Cells(LPlaceRow, 15).Value = Cells(LSearchRow, 2).Value
+        Cells(LPlaceRow, 16).Value = Cells(LSearchRow, 3).Value
+    
+        ' Increment LPlaceRow by 1, to prepare the next output
+        LPlaceRow = LPlaceRow + 1
+        
+        ' Increment ClosedCheckRow by 14 to prepare the next game.
+        ClosedCheckRow = ClosedCheckRow + 14
+        
+    Wend
+    
+End Sub
+
+' This subroutine parses through the inputted game dates, and outputs their unsorted Gameplay Legal Review dates.
+Sub update_GameplayLegal()
+
+    ' Variable Declarations
+    Dim LSearchRow As Integer
+    Dim LPlaceRow As Integer
+    Dim ClosedCheckRow As Integer
+    
+    ' Initial values for each of the values.
+    LSearchRow = 3     ' LSearchRow moves down the rows following the conditions below.
+    LPlaceRow = 2      ' LPlacerow Controls where the output will be placed.
+    ClosedCheckRow = 2 ' ClosedCheckRow keeps track of which game data is being pulled from.
+    
+    ' This outer while loop increments 14 rows at a time, moving from game to game.
+    While Len(Range("D" & CStr(ClosedCheckRow)).Value) > 0
+    
+        ' Set the target row to be searched at 12 below the header row of the game.
+        LSearchRow = ClosedCheckRow + 5
+        
+        ' Check if the Gameplay Legal gate has been closed.
+        If Len(Range("D" & CStr(LSearchRow)).Value) > 0 Then
+            
+            ' If the gate is closed, increment over it by 5 to get the Final Legal instead.
+            LSearchRow = LSearchRow + 5
+        
+        End If
+        
+        ' LSearchRow should now either be directly on the Gameplay Legal or Final Legal gate.
+        
+        ' If we are in a scenario where we incremented from Gameplay Legal -> Final Legal,
+        ' we now must check if that Final Legal gate has been closed.
+        
+        If Len(Range("D" & CStr(LSearchRow)).Value) > 0 Then
+        
+            ' If the Final Legal gate is closed increment over it by 3 to set it to empty.
+            LSearchRow = LSearchRow + 3
+            
+        End If
+        
+        ' By this point, we should either have a Gameplay Legal date, a Final Legal date, or a blank.
+            
+Output:
+        ' Output the name & color of the game, setting it to bold.
+        Cells(LPlaceRow, 20).Value = Cells(ClosedCheckRow, 2).Value
+        Cells(LPlaceRow, 20).Font.Bold = True
+        Cells(LPlaceRow, 20).Interior.Color = Cells(ClosedCheckRow + 1, 2).Interior.Color
+        
+        ' Output the gate name and date.
+        Cells(LPlaceRow, 21).Value = Cells(LSearchRow, 2).Value
+        Cells(LPlaceRow, 22).Value = Cells(LSearchRow, 3).Value
+    
+        ' Increment LPlaceRow by 1, to prepare the next output
+        LPlaceRow = LPlaceRow + 1
+        
+        ' Increment ClosedCheckRow by 14 to prepare the next game.
+        ClosedCheckRow = ClosedCheckRow + 14
+        
+    Wend
+    
+End Sub

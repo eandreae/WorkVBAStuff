@@ -259,43 +259,95 @@ Sub update_UpNextGates()
     Dim TargetRow As Integer
     Dim TargetCol As Integer
     Dim TargetColRange As String
-    Dim TargetGameRowIncrement As Integer
-
-    Dim OnLeft As Boolean
 
     Dim NextInputGameOffset As Integer
-    Dim TargetBackToTop As Integer
-    Dim LeftRightOffset As Integer
-    Dim NextOutputGame As Integer
 
     Dim DefaultColorIndex As Integer
     Dim GameColorIndex As Integer
 
+    Dim EarliestGateRow As Integer
+    Dim IsEarliestEmpty As Boolean
+
+    Dim DistanceToBottom As Integer
+    Dim InputStop As Integer
+
+    Dim GameplayLegalOffset As Integer
+    Dim FinalLegalOffset As Integer
+
     ' Initial values for variables
     InputRow = 5              ' Row 5 is where the data begins
-    InputCol = 8              ' Col 8 is where the data begins
-    InputColRange = "H"       ' H is Col 8, where the data begins
+    InputCol = 19             ' Col 19 is where the data begins
+    InputColRange = "S"       ' S is Col 19, where the data begins
     InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
 
-    TargetRow = 6              ' Row 6 is where the output data begins
+    TargetRow = 26             ' Row 36 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
     TargetColRange = "B"       ' B is Col 2, where the output data begins
-    TargetGameRowIncrement = 1 ' Starts at 1, stays at 1.
 
-    OnLeft = True ' Initially set to true, since outputting to the game on the left.
+    NextInputGameOffset = 18
 
-    NextInputGameOffset = 10
-    TargetBackToTop = 5
-    LeftRightOffset = 4
-    NextOutputGame = 4
+    EarliestGateRow = 0
+    IsEarliestEmpty = true
+
+    DistanceToBottom = 16 ' There are 16 ROWS between the Header and the Ho2C date.
+    InputStop = 0
+
+    GameplayLegalOffset = 9
+    FinalLegalOffset = 14
 
     While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
+        
+        ' Start at the correct game - The header ROW
+        ' Iterate through all of the gates, storing the ROW of the earliest game date
+        ' Set the EarliestGateRow to 0, shouldn't be one yet.
+        EarliestGateRow = 0 
+        IsEarliestEmpty = true
+        ' Set the InputRow to be the HEADER - InputGameRowIncrement
+        InputRow = InputGameRowIncrement
+        InputStop = InputRow + DistanceToBottom
+        ' Iterate through the game in a WHILE loop, until the ROW is at the Ho2C
+        While InputRow <= InputStop
+            ' While the InputRow is not past the bottom
+            ' Check the current ROW if it is closed.
+            If Cells(InputRow, InputCol+1).Value > 0 Then
+                ' The gate is closed, do nothing
+            Else
+                ' The gate is open, compare it to the earliest gate.
+                If IsEarliestEmpty Then
+                    ' If EarlistGateRow is empty, make the current open ROW the earliest
+                    EarliestGateRow = InputRow
+                    IsEarliestEmpty = false
+                Else
+                    ' Otherwise, compare the InputRow to the EarliestGateRow
+                    If Cells(InputRow, InputCol).Value < Cells(EarliestGateRow, InputCol).Value Then
+                        ' If the InputRow comes before the EarliestGateRow, make it the new 
+                        EarliestGateRow = InputRow
+                        IsEarliestEmpty = false
+                    Else
+                        ' Otherwise, Continue iterating, do nothing.
+                    End If
+                End If
+            End If
+            ' Iterate the InputRow
+            InputRow = InputRow + 1
+        Wend
 
+        ' At this point, the EarliestGateRow has either been decided, or left empty.
+        ' Output it to the target location if it has been filled.
+        If IsEarliestEmpty Then
+            ' If it's empty, do nothing.
+        Else
+            ' Output the EarliestGateRow to the target location.
+            Cells(TargetRow, TargetCol+2).Value = Cells(EarliestGateRow, InputCol).Value
+            Cells(TargetRow, TargetCol+1).Value = Cells(EarliestGateRow, InputCol-1).Value
+            Cells(TargetRow, TargetCol).Value = Cells(InputGameRowIncrement,InputCol-1).Value
+            Cells(TargetRow, TargetCol).Interior.Color = Cells(InputGameRowIncrement+1,InputCol-1).Interior.Color
+            ' Iterate the TargetRow by 1
+            TargetRow = TargetRow + 1
+        End If
+
+        ' Increment the InputGameRowIncrement to move onto the next game.
+        InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
     Wend
-
-
-
-
-
 
 End Sub

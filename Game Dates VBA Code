@@ -280,7 +280,7 @@ Sub update_UpNextGates()
     InputColRange = "S"       ' S is Col 19, where the data begins
     InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
 
-    TargetRow = 31             ' Row 31 is where the output data begins
+    TargetRow = 35             ' Row 35 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
     TargetColRange = "B"       ' B is Col 2, where the output data begins
 
@@ -555,7 +555,7 @@ Sub update_UpNextLegals()
     InputColRange = "T"       ' S is Col 20, where the data begins
     InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
 
-    TargetRow = 19             ' Row 19 is where the output data begins
+    TargetRow = 21             ' Row 21 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
     TargetColRange = "B"       ' B is Col 2, where the output data begins
 
@@ -618,4 +618,264 @@ Sub update_UpNextLegals()
         ' Increment the InputGameRowIncrement to move onto the next game.
         InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
     Wend
+End Sub
+
+Sub update_LastEditedBy()
+    ' This subroutine updates the last edited by field
+    Dim TargetRow As Integer
+    Dim TargetCol As Integer
+    Dim Message As String
+
+    TargetRow = 2
+    TargetCol = 2
+    Message = "Last Edited by Eric Andreae @ "
+
+    Cells(TargetRow, TargetCol).Value = Message & Now
+
+End Sub
+
+Sub update_GamesList2()
+    ' This Subroutine updates Game Dates #2
+
+    ' Variable Declarations
+    Dim InputRow As Integer
+    Dim InputCol As Integer
+    Dim InputColRange As String
+    Dim InputGameRowIncrement As Integer
+
+    Dim TargetRow As Integer
+    Dim TargetCol As Integer
+    Dim TargetColRange As String
+    Dim TargetGameRowIncrement As Integer
+
+    Dim OnLeft As Boolean
+
+    Dim NextInputGameOffset As Integer
+    Dim TargetBackToTop As Integer
+    Dim LeftRightOffset As Integer
+    Dim NextOutputGame As Integer
+
+    Dim DefaultColorIndex As Integer
+    Dim GameColorIndex As Integer
+
+    ' Initial values for variables
+    InputRow = 5              ' Row 5 is where the data begins
+    InputCol = 18             ' Col 18 is where the data begins
+    InputColRange = "R"       ' R is Col 18, where the data begins
+    InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
+
+    TargetRow = 5              ' Row 5 is where the output data begins
+    TargetCol = 8              ' Col 8 is where the output data begins
+    TargetColRange = "H"       ' I is Col 8, where the output data begins
+    TargetGameRowIncrement = 5 ' Starts at 5, since 5 is where the output data begins
+
+    OnLeft = True ' Initially set to true, since outputting to the game on the left.
+
+    NextInputGameOffset = 18
+    TargetBackToTop = 6
+    LeftRightOffset = 4
+    NextOutputGame = 4
+
+    ' Step 1, read the relevant information.
+    ' List of Relevant Information:
+        ' 1. Pre-Production Review - Location = Header + 4
+        Dim PrePro_Offset As Integer
+        PrePro_Offset = 4
+        ' 2. Handoff to SQA        - Location = Pre-Pro + 3 (Header + 7)
+        Dim Ho2SQA_Offset As Integer
+        Ho2SQA_Offset = 7
+        ' 3. 1st Paytables         - Location = H02SQA + 3 (Header + 10)
+        Dim Paytables_Offset As Integer
+        Paytables_Offset = 10
+        ' 4. Polish Complete       - Location = 1st Paytables + 2 (Header + 12)
+        Dim Polish_Offset As Integer
+        Polish_Offset = 12
+        ' 5. Golden Game           - Location = Polish Complete + 3 (Header + 15)
+        Dim Golden_Offset As Integer
+        Golden_Offset = 15
+        ' 6. Handoff to Compliance - Location = Golden Game + 1 (Header + 16)
+        Dim Ho2C_Offset As Integer
+        Ho2C_Offset = 16
+
+
+    ' Increment through each game on the Full List, outputting onto the Game List
+    ' In-between game increment = 18
+
+    ' While there is a game on the Full List to Read data from
+    While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
+        ' Starts with the header at row 5. Assume initial state is in an accurate place.
+        InputRow = InputGameRowIncrement
+
+        ' Get the indexes for the colors
+        DefaultColorIndex = InputRow
+        GameColorIndex = InputRow+1
+
+        ' Read the name of the game, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow, InputCol).Value
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(DefaultColorIndex, InputCol).Interior.Color
+        ' Write "Start" to the right of that location
+        Cells(TargetRow, TargetCol+1).Value = "Start"
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(DefaultColorIndex, InputCol+1).Interior.Color
+        ' Write "Closed" to the right of that location
+        Cells(TargetRow, TargetCol+2).Value = "Closed"
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(DefaultColorIndex, InputCol+2).Interior.Color
+        ' Increment the Target by 1 Row.
+        TargetRow = TargetRow + 1
+
+        
+
+        ' -- PRE PRODUCTION: GameColor--
+        ' Read the Pre-Production Gate, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow + PrePro_Offset, InputCol).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(GameColorIndex, InputCol).Interior.Color
+        
+        ' Read the Pre-Production Date, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow + PrePro_Offset, InputCol+1).Value
+        ' Read the color of the cell, write it to the target loction.
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(GameColorIndex, InputCol+1).Interior.Color
+        
+        ' Read if the Pre-Production Gate has been closed, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow + PrePro_Offset, InputCol+2).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(GameColorIndex, InputCol+2).Interior.Color
+        
+        ' Increment the Target by 1 Row.
+        TargetRow = TargetRow + 1
+
+
+
+        ' -- HANDOFF TO SQA: Default Color--
+        ' Read the Handoff to SQA gate, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow + Ho2SQA_Offset, InputCol).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(DefaultColorIndex, InputCol).Interior.Color
+        
+        ' Read the Handoff to SQA date, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow + Ho2SQA_Offset, InputCol+1).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(DefaultColorIndex, InputCol+1).Interior.Color
+        
+        ' Read whether or not it's closed, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow + Ho2SQA_Offset, InputCol+2).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(DefaultColorIndex, InputCol+2).Interior.Color
+        
+        ' Increment the Target by 1 Row.
+        TargetRow = TargetRow + 1
+
+
+
+        ' -- 1ST PAYTABLES: Game Color--
+        ' Read the 1st Paytable gate, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow + Paytables_Offset, InputCol).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(GameColorIndex, InputCol).Interior.Color
+        
+        ' Read the 1st Paytable date, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow + Paytables_Offset, InputCol+1).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(GameColorIndex, InputCol+1).Interior.Color
+        
+        ' Read whether or not it's closed, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow + Paytables_Offset, InputCol+2).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(GameColorIndex, InputCol+2).Interior.Color
+        
+        ' Increment the Target by 1 Row.
+        TargetRow = TargetRow + 1
+
+
+
+        ' -- POLISH COMPLETE: Default Color --
+        ' Read the Polish Complete gate, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow + Polish_Offset, InputCol).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(DefaultColorIndex, InputCol).Interior.Color
+
+        ' Read the Polish Complete date, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow + Polish_Offset, InputCol+1).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(DefaultColorIndex, InputCol+1).Interior.Color
+        
+        ' Read whether or not it's closed, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow + Polish_Offset, InputCol+2).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(DefaultColorIndex, InputCol+2).Interior.Color
+
+        ' Increment the Target by 1 Row.
+        TargetRow = TargetRow + 1
+
+
+
+        ' -- GOLDEN GAME: Game Color --
+        ' Read the Golden Game gate, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow + Golden_Offset, InputCol).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(GameColorIndex, InputCol).Interior.Color
+
+        ' Read the Golden Game date, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow + Golden_Offset, InputCol+1).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(GameColorIndex, InputCol+1).Interior.Color
+
+        ' Read whether or not it's closed, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow + Golden_Offset, InputCol+2).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(GameColorIndex, InputCol+2).Interior.Color
+
+        ' Increment the Target by 1 Row.
+        TargetRow = TargetRow + 1
+
+
+
+        ' -- HANDOFF TO COMPLIANCE: Default Color --
+        ' Read the Handoff to Compliance gate, write it to the target location.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow + Ho2C_Offset, InputCol).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol).Interior.Color = Cells(DefaultColorIndex, InputCol).Interior.Color
+
+        ' Read the Handoff to Compliance date, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow + Ho2C_Offset, InputCol+1).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+1).Interior.Color = Cells(DefaultColorIndex, InputCol+1).Interior.Color
+
+        ' Read whether or not it's closed, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow + Ho2C_Offset, InputCol+2).Value
+        ' Read the color of the cell, write it to the target location.
+        Cells(TargetRow, TargetCol+2).Interior.Color = Cells(DefaultColorIndex, InputCol+2).Interior.Color
+        
+        ' Increment the InputGameRowIncrement by 18 to move it to the next game.
+        InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
+
+        ' Increment the Target position to the next game position.
+        ' The next game position depends if the previous target was on the left or right.
+        If OnLeft Then
+            ' If the target was just on the left, increment it to the right.
+
+            ' Move the target Column to the right by the LeftRightOffset
+            TargetCol = TargetCol + LeftRightOffset
+
+            ' Move the target Row up to the top
+            TargetRow = TargetRow - TargetBackToTop
+
+            ' Flip OnLeft to False, as now we're on the right.
+            OnLeft = False
+
+        Else 
+            ' If the target was NOT on the left, incremement it to the left.
+
+            ' Move the target Row down by the NextOutputGame offset
+            TargetRow = TargetRow + NextOutputGame
+
+            ' Move the target Column to the left by the LeftRightOffset
+            TargetCol = TargetCol - LeftRightOffset
+
+            ' Flip OnLeft to True, as we're on the left.
+            OnLeft = true
+
+        End If
+
+    Wend
+
 End Sub

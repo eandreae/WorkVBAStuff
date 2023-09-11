@@ -523,5 +523,99 @@ Sub update_UpNextReview()
 End Sub
 
 Sub update_UpNextLegals()
-    ' Insert code here
+    ' The purpose of this subroutine is to update the UpNextReviews
+
+    ' Variable Declarations
+    Dim InputRow As Integer
+    Dim InputCol As Integer
+    Dim InputColRange As String
+    Dim InputGameRowIncrement As Integer
+
+    Dim TargetRow As Integer
+    Dim TargetCol As Integer
+    Dim TargetColRange As String
+
+    Dim NextInputGameOffset As Integer
+
+    Dim DefaultColorIndex As Integer
+    Dim GameColorIndex As Integer
+
+    Dim EarliestGateRow As Integer
+    Dim IsEarliestEmpty As Boolean
+
+    Dim DistanceToBottom As Integer
+    Dim InputStop As Integer
+
+    Dim GameplayLegalOffset As Integer
+    Dim FinalLegalOffset As Integer
+
+    ' Initial values for variables
+    InputRow = 5              ' Row 5 is where the data begins
+    InputCol = 20             ' Col 20 is where the data begins
+    InputColRange = "T"       ' S is Col 20, where the data begins
+    InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
+
+    TargetRow = 19             ' Row 19 is where the output data begins
+    TargetCol = 2              ' Col 2 is where the output data begins
+    TargetColRange = "B"       ' B is Col 2, where the output data begins
+
+    NextInputGameOffset = 18
+
+    EarliestGateRow = 0
+    IsEarliestEmpty = true
+
+    DistanceToBottom = 16 ' There are 16 ROWS between the Header and the Ho2C date.
+    InputStop = 0
+
+    GameplayLegalOffset = 9
+    FinalLegalOffset = 14
+
+    While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
+        ' Start at the correct game - The header ROW
+        
+        ' Check if the Gameplay Legal Review gate is closed
+        If (Cells(InputGameRowIncrement + GameplayLegalOffset, InputCol).Value > 0) Then
+            ' If Closed, do nothing
+        Else
+            If IsEarliestEmpty Then
+                ' If EarliestGateRow is empty, and the gate isn't closed, make this the new EarliestGateRow gate.
+                EarliestGateRow = InputGameRowIncrement + GameplayLegalOffset
+                IsEarliestEmpty = false
+            Else
+                ' If EarliestGateRow isn't empty, do nothing.
+            End If
+        End If
+
+        If (Cells(InputGameRowIncrement + FinalLegalOffset, InputCol).Value > 0) Then
+            ' If Closed, do nothing
+        Else
+            If IsEarliestEmpty Then
+                ' If EarliestGateRow is empty, and the gate isn't closed, make this the new EarliestGateRow gate.
+                EarliestGateRow = InputGameRowIncrement + FinalLegalOffset
+                IsEarliestEmpty = false
+            Else
+                ' If EarliestGateRow isn't empty, do nothing.
+            End If
+        End If
+
+        ' At this point, EarliestGateRow is either empty, or has data.
+        ' Output it to the target area if it's not empty.
+
+        If IsEarliestEmpty Then
+            ' Do nothing if it's empty.
+            Debug.Print("Empty at the end")
+        Else 
+            ' Output to the target area
+            Cells(TargetRow, TargetCol+2).Value = Cells(EarliestGateRow, InputCol-1).Value
+            Cells(TargetRow, TargetCol+1).Value = Cells(EarliestGateRow, InputCol-2).Value
+            Cells(TargetRow, TargetCol).Value = Cells(InputGameRowIncrement,InputCol-2).Value
+            Cells(TargetRow, TargetCol).Interior.Color = Cells(InputGameRowIncrement+1,InputCol-1).Interior.Color
+            ' Increment the Target location by 1
+            TargetRow = TargetRow + 1
+            ' Reset IsEarliestEmpty
+            IsEarliestEmpty = true
+        End If
+        ' Increment the InputGameRowIncrement to move onto the next game.
+        InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
+    Wend
 End Sub

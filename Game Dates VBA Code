@@ -51,7 +51,7 @@ Sub update_GamesListDates()
         Ho2SQA_Offset = 7
         ' 3. 1st Paytables         - Location = H02SQA + 3 (Header + 10)
         Dim Paytables_Offset As Integer
-        Paytables_Offset = 10
+        Paytables_Offset = 9
         ' 4. Polish Complete       - Location = 1st Paytables + 2 (Header + 12)
         Dim Polish_Offset As Integer
         Polish_Offset = 12
@@ -248,7 +248,7 @@ Sub update_GamesListDates()
 End Sub
 
 Sub update_UpNextGates()
-    ' The purpose of this subroutine is to update the UpNext Gates List.
+    ' The purpose of this subroutine is to update the "All Up Next Gates" List.
 
     ' Variable Declarations
     Dim InputRow As Integer
@@ -353,7 +353,7 @@ Sub update_UpNextGates()
 End Sub
 
 Sub update_UpNextReview()
-    ' The purpose of this subroutine is to update the UpNextReviews
+    ' The purpose of this subroutine is to update the "Up Next Gates/Reviews"
 
     ' Variable Declarations
     Dim InputRow As Integer
@@ -403,7 +403,7 @@ Sub update_UpNextReview()
 
     PrePro_Offset = 4
     Ho2SQA_Offset = 7
-    Paytables_Offset = 10
+    Paytables_Offset = 9
     Polish_Offset = 12
     Golden_Offset = 15
     Ho2C_Offset = 16
@@ -523,7 +523,7 @@ Sub update_UpNextReview()
 End Sub
 
 Sub update_UpNextLegals()
-    ' The purpose of this subroutine is to update the UpNextReviews
+    ' The purpose of this subroutine is to update the "Up Next Legal Reviews"
 
     ' Variable Declarations
     Dim InputRow As Integer
@@ -567,8 +567,8 @@ Sub update_UpNextLegals()
     DistanceToBottom = 16 ' There are 16 ROWS between the Header and the Ho2C date.
     InputStop = 0
 
-    GameplayLegalOffset = 9
-    FinalLegalOffset = 14
+    GameplayLegalOffset = 8
+    FinalLegalOffset = 13
 
     While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
         ' Start at the correct game - The header ROW

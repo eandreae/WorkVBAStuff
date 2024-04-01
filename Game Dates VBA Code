@@ -39,7 +39,7 @@ Sub update_GamesListDates()
     NextInputGameOffset = 18
     TargetBackToTop = 6
     LeftRightOffset = 4
-    NextOutputGame = 4
+    NextOutputGame = 2
 
     ' Step 1, read the relevant information.
     ' List of Relevant Information:
@@ -64,7 +64,7 @@ Sub update_GamesListDates()
 
 
     ' Increment through each game on the Full List, outputting onto the Game List
-    ' In-between game increment = 18
+    ' In-between game increment = NextInputGameOffset
 
     ' While there is a game on the Full List to Read data from
     While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
@@ -280,7 +280,7 @@ Sub update_UpNextGates()
     InputColRange = "S"       ' S is Col 19, where the data begins
     InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
 
-    TargetRow = 35             ' Row 35 is where the output data begins
+    TargetRow = 42             ' Row 42 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
     TargetColRange = "B"       ' B is Col 2, where the output data begins
 
@@ -312,39 +312,17 @@ Sub update_UpNextGates()
             If Cells(InputRow, InputCol+1).Value > 0 Then
                 ' The gate is closed, do nothing
             Else
-                ' The gate is open, compare it to the earliest gate.
-                If IsEarliestEmpty Then
-                    ' If EarlistGateRow is empty, make the current open ROW the earliest
-                    EarliestGateRow = InputRow
-                    IsEarliestEmpty = false
-                Else
-                    ' Otherwise, compare the InputRow to the EarliestGateRow
-                    If Cells(InputRow, InputCol).Value < Cells(EarliestGateRow, InputCol).Value Then
-                        ' If the InputRow comes before the EarliestGateRow, make it the new 
-                        EarliestGateRow = InputRow
-                        IsEarliestEmpty = false
-                    Else
-                        ' Otherwise, Continue iterating, do nothing.
-                    End If
-                End If
+                ' The gate is open, print it to the output
+                Cells(TargetRow, TargetCol+2).Value = Cells(InputRow, InputCol).Value
+                Cells(TargetRow, TargetCol+1).Value = Cells(InputRow, InputCol-1).Value
+                Cells(TargetRow, TargetCol).Value = Cells(InputGameRowIncrement,InputCol-1).Value
+                Cells(TargetRow, TargetCol).Interior.Color = Cells(InputGameRowIncrement+1,InputCol-1).Interior.Color
+                ' Iterate the TargetRow by 1
+                TargetRow = TargetRow + 1
             End If
             ' Iterate the InputRow
             InputRow = InputRow + 1
         Wend
-
-        ' At this point, the EarliestGateRow has either been decided, or left empty.
-        ' Output it to the target location if it has been filled.
-        If IsEarliestEmpty Then
-            ' If it's empty, do nothing.
-        Else
-            ' Output the EarliestGateRow to the target location.
-            Cells(TargetRow, TargetCol+2).Value = Cells(EarliestGateRow, InputCol).Value
-            Cells(TargetRow, TargetCol+1).Value = Cells(EarliestGateRow, InputCol-1).Value
-            Cells(TargetRow, TargetCol).Value = Cells(InputGameRowIncrement,InputCol-1).Value
-            Cells(TargetRow, TargetCol).Interior.Color = Cells(InputGameRowIncrement+1,InputCol-1).Interior.Color
-            ' Iterate the TargetRow by 1
-            TargetRow = TargetRow + 1
-        End If
 
         ' Increment the InputGameRowIncrement to move onto the next game.
         InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
@@ -555,7 +533,7 @@ Sub update_UpNextLegals()
     InputColRange = "T"       ' S is Col 20, where the data begins
     InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
 
-    TargetRow = 21             ' Row 21 is where the output data begins
+    TargetRow = 24             ' Row 21 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
     TargetColRange = "B"       ' B is Col 2, where the output data begins
 

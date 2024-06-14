@@ -43,15 +43,15 @@ Sub update_GamesListDates()
 
     ' Step 1, read the relevant information.
     ' List of Relevant Information:
-        ' 1. Pre-Production Review - Location = Header + 4
+        ' 1. Pre-Production Review - Location = Header + 5
         Dim PrePro_Offset As Integer
-        PrePro_Offset = 4
-        ' 2. Handoff to SQA        - Location = Pre-Pro + 3 (Header + 7)
+        PrePro_Offset = 5
+        ' 2. Handoff to SQA        - Location = Pre-Pro + 3 (Header + 8)
         Dim Ho2SQA_Offset As Integer
-        Ho2SQA_Offset = 7
+        Ho2SQA_Offset = 8
         ' 3. 1st Paytables         - Location = H02SQA + 3 (Header + 10)
         Dim Paytables_Offset As Integer
-        Paytables_Offset = 9
+        Paytables_Offset = 10
         ' 4. Polish Complete       - Location = 1st Paytables + 2 (Header + 12)
         Dim Polish_Offset As Integer
         Polish_Offset = 12
@@ -331,7 +331,7 @@ Sub update_UpNextGates()
 End Sub
 
 Sub update_UpNextReview()
-    ' The purpose of this subroutine is to update the "Up Next Gates/Reviews"
+    ' The purpose of this subroutine is to update the "Up Next Reviews"
 
     ' Variable Declarations
     Dim InputRow As Integer
@@ -379,9 +379,9 @@ Sub update_UpNextReview()
     DistanceToBottom = 16 ' There are 16 ROWS between the Header and the Ho2C date.
     InputStop = 0
 
-    PrePro_Offset = 4
-    Ho2SQA_Offset = 7
-    Paytables_Offset = 9
+    PrePro_Offset = 5
+    Ho2SQA_Offset = 8
+    Paytables_Offset = 10
     Polish_Offset = 12
     Golden_Offset = 15
     Ho2C_Offset = 16
@@ -500,8 +500,8 @@ Sub update_UpNextReview()
 
 End Sub
 
-Sub update_UpNextLegals()
-    ' The purpose of this subroutine is to update the "Up Next Legal Reviews"
+Sub update_UpNextHo2C()
+    ' The purpose of this subroutine is to update the "Up Next Handoff to Compliance"
 
     ' Variable Declarations
     Dim InputRow As Integer
@@ -551,25 +551,13 @@ Sub update_UpNextLegals()
     While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
         ' Start at the correct game - The header ROW
         
-        ' Check if the Gameplay Legal Review gate is closed
-        If (Cells(InputGameRowIncrement + GameplayLegalOffset, InputCol).Value > 0) Then
+        ' Check if the Handoff to Compliance gate is closed
+        If (Cells(InputGameRowIncrement + DistanceToBottom, InputCol).Value > 0) Then
             ' If Closed, do nothing
         Else
             If IsEarliestEmpty Then
                 ' If EarliestGateRow is empty, and the gate isn't closed, make this the new EarliestGateRow gate.
-                EarliestGateRow = InputGameRowIncrement + GameplayLegalOffset
-                IsEarliestEmpty = false
-            Else
-                ' If EarliestGateRow isn't empty, do nothing.
-            End If
-        End If
-
-        If (Cells(InputGameRowIncrement + FinalLegalOffset, InputCol).Value > 0) Then
-            ' If Closed, do nothing
-        Else
-            If IsEarliestEmpty Then
-                ' If EarliestGateRow is empty, and the gate isn't closed, make this the new EarliestGateRow gate.
-                EarliestGateRow = InputGameRowIncrement + FinalLegalOffset
+                EarliestGateRow = InputGameRowIncrement + DistanceToBottom
                 IsEarliestEmpty = false
             Else
                 ' If EarliestGateRow isn't empty, do nothing.

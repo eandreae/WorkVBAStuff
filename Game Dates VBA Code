@@ -280,7 +280,7 @@ Sub update_UpNextGates()
     InputColRange = "S"       ' S is Col 19, where the data begins
     InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
 
-    TargetRow = 42             ' Row 42 is where the output data begins
+    TargetRow = 6              ' Row 6 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
     TargetColRange = "B"       ' B is Col 2, where the output data begins
 

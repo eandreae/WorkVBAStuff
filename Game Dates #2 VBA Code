@@ -1,0 +1,160 @@
+Sub update_UpNextGates()
+    ' The purpose of this subroutine is to populate the "Up Next Gates Section"
+    ' Last edited by Eric Andreae on 5/20/2025
+
+    ' Variable Declaration
+
+    ' To iterate through the data, I will be using a
+    ' virtual cursor, tracking it with a Row and Col.
+    Dim CursorRow As Integer
+    Dim CursorCol As Integer
+    Dim CursorColLetter As String
+
+    ' I will also use a virtual cursor to track the
+    ' output location, using a Row and Col.
+    Dim OutputRow As Integer
+    Dim OutputCol As Integer
+    Dim OutputColLetter As String
+
+    ' To make things easier, I will store the location
+    ' of the game's name using Row and Col.
+    Dim GameNameRow As Integer
+    Dim GameNameCol As Integer
+    Dim GameNameColLetter As String
+
+    ' I will also store the location of the game's
+    ' internal milestone header using Row and Col
+    Dim MilestoneColLetter As String
+    Dim MilestoneColLetterLeft As String
+    MilestoneColLetterLeft = "J"
+    Dim MilestoneColLetterRight As String
+    MilestoneColLetterRight = "R"
+
+    ' Initial values for variables
+
+    ' Each game is spaced out by 13 rows, will track that with a variable
+    Dim NextGameRowOffset As Integer
+    NextGameRowOffset = 23
+    Dim NextGameColOffset As Integer
+    NextGameColOffset = 8
+
+    MilestoneColLetter = MilestoneColLetterLeft
+
+    ' With the current version of game dates #2, the
+    ' correct cursor location should be Row 6, Col 7, (G).
+    CursorRow = 6
+    CursorCol = 7
+    CursorColLetter = "G"
+    
+    ' And the output location should be Row 6, Col 2 (B).
+    OutputRow = 6
+    OutputCol = 2
+    OutputColLetter = "B"
+
+    ' Main Loop for the left side
+    ' This outer While loop terminates when the Cursor is placed at an empty position.
+    While Len(Range(CursorColLetter & CStr(CursorRow)).Value) > 0
+        ' The cursor is currently placed at the location of the game's name.
+        ' Store it for future use
+        GameNameRow = CursorRow
+        GameNameCol = CursorCol
+        GameNameColLetter = CursorColLetter
+
+        ' Increment CursorRow by 1 to begin data collection with Loop #1
+        CursorRow = CursorRow + 1
+    
+        ' Loop #1
+        ' This loops through the left side of the data for a single game in Game Dates #2
+        While Len(Range(CursorColLetter & CStr(CursorRow)).Value) > 0
+            ' While the cursor is not empty
+            ' Check if the current gate is closed
+            If Cells(CursorRow, CursorCol + 2).Value > 0 Then
+                ' The gate is closed, do nothing
+            Else
+            ' The gate is open, copy it to the output.
+            ' Copy the Game Name and Color
+            Cells(OutputRow, OutputCol).Value = Cells(GameNameRow, GameNameCol).Value
+            Cells(OutputRow, OutputCol).Interior.Color = Cells(GameNameRow, GameNameCol).Interior.Color
+            ' Copy the Gate's Name
+            Cells(OutputRow, OutputCol + 1).Value = Cells(CursorRow, CursorCol).Value
+            ' Copy the Due Date
+            Cells(OutputRow, OutputCol + 2).Value = Cells(CursorRow, CursorCol + 1).Value
+            
+            OutputRow = OutputRow + 1
+            End If
+
+            ' Iterate the cursor by 1
+            CursorRow = CursorRow + 1
+        Wend
+        ' Reset the cursor back to the top, using the GameNameRow
+        CursorRow = GameNameRow + 1
+        CursorCol = CursorCol + 3
+        CursorColLetter = MilestoneColLetter
+        
+        ' Loop #2
+        While Len(Range(CursorColLetter & CStr(CursorRow)).Value) > 0
+
+            If Cells(CursorRow, CursorCol).Value = "Pre-Production Review" Then
+                ' Do Nothing
+            ElseIf Cells(CursorRow, CursorCol).Value = "Polish Complete" Then
+                ' Do Nothing
+            ElseIf Cells(CursorRow, CursorCol).Value = "Golden Game / Sign Pckge" Then
+                ' Do Nothing
+            ElseIf Cells(CursorRow, CursorCol).Value = "Ho2C / DAMS" Then
+                ' Do Nothing
+            ElseIf Cells(CursorRow, CursorCol + 3).Value > 0 Then
+                ' Do Nothing
+            Else
+                ' The gate is open, copy it to the output.
+                ' Copy the Game Name and Color
+                Cells(OutputRow, OutputCol).Value = Cells(GameNameRow, GameNameCol).Value
+                Cells(OutputRow, OutputCol).Interior.Color = Cells(GameNameRow, GameNameCol).Interior.Color
+                ' Copy the Gate's Name
+                Cells(OutputRow, OutputCol + 1).Value = Cells(CursorRow, CursorCol).Value
+                ' Copy the Due Date
+                Cells(OutputRow, OutputCol + 2).Value = Cells(CursorRow, CursorCol + 1).Value
+                
+                OutputRow = OutputRow + 1
+            End If
+           
+
+            ' Iterate the cursor by 1
+            CursorRow = CursorRow + 1
+        Wend
+
+        CursorRow = GameNameRow
+        CursorCol = GameNameCol
+        CursorColLetter = GameNameColLetter
+
+        CursorRow = CursorRow + NextGameRowOffset
+
+        If Cells(CursorRow, CursorCol).Value > 0 Then
+            ' Cell is not empty, continue
+        Else
+            If MilestoneColLetter <> MilestoneColLetterRight Then
+                ' Cell is empty and already not on right side, switch to right side
+                CursorRow = 6
+                CursorCol = 15
+                CursorColLetter = "O"
+                MilestoneColLetter = MilestoneColLetterRight
+            End If
+        End If
+
+    Wend
+
+
+End Sub
+
+Sub update_LastEditedBy()
+    ' This subroutine updates the last edited by field
+    Dim TargetRow As Integer
+    Dim TargetCol As Integer
+    Dim Message As String
+
+    TargetRow = 2
+    TargetCol = 2
+    Message = "Last Edited by Eric Andreae @ "
+
+    Cells(TargetRow, TargetCol).Value = Message & Now
+
+End Sub

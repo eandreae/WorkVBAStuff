@@ -256,6 +256,17 @@ Sub update_UpNextGates()
     Dim InputColRange As String
     Dim InputGameRowIncrement As Integer
 
+    Dim InputMilestoneRow As Integer
+    Dim InputMilestoneCol As Integer
+    Dim InputMilestoneColRange As String
+    Dim InputMilestoneRowIncrement As Integer
+    Dim InputMilestoneRowOffset As Integer
+
+    Dim ResetMilestoneRow As Integer
+    Dim ResetMilestoneCol As Integer
+    Dim ResetMilestoneColRange As String
+    Dim ResetMilestoneRowIncrement As Integer
+
     Dim TargetRow As Integer
     Dim TargetCol As Integer
     Dim TargetColRange As String
@@ -275,10 +286,21 @@ Sub update_UpNextGates()
     Dim FinalLegalOffset As Integer
 
     ' Initial values for variables
-    InputRow = 5              ' Row 5 is where the data begins
-    InputCol = 19             ' Col 19 is where the data begins
-    InputColRange = "S"       ' S is Col 19, where the data begins
-    InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
+    InputRow = 6              ' Row 6 is where the data begins
+    InputCol = 7              ' Col 7 is where the data begins
+    InputColRange = "G"       ' G is Col 7, where the data begins
+    InputGameRowIncrement = 6 ' Starts at 6, since 5 is where the data begins
+
+    InputMilestoneRow = 6          ' Row 6 is where the Milestone data begins
+    InputMilestoneCol = 8          ' Col 8 is where the Milestone data begins
+    InputMilestoneColRange = "H"   ' H is Col 8, where the Milestone data begins
+    InputMilestoneRowIncrement = 5 ' Starts at 5, since 5 is where the Milestone data begins
+    InputMilestoneRowOffset = 15   ' Each game is 14 rows apart
+
+    ResetMilestoneRow = InputMilestoneRow
+    ResetMilestoneCol = 17
+    ResetMilestoneColRange = "Q"
+    ResetMilestoneRowIncrement = InputMilestoneRowIncrement
 
     TargetRow = 6              ' Row 6 is where the output data begins
     TargetCol = 2              ' Col 2 is where the output data begins
@@ -295,6 +317,8 @@ Sub update_UpNextGates()
     GameplayLegalOffset = 9
     FinalLegalOffset = 14
 
+    ' This While loop iterates through all the primary game dates,
+    ' populating the Up Next Gates with their data.
     While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
         
         ' Start at the correct game - The header ROW
@@ -327,6 +351,78 @@ Sub update_UpNextGates()
         ' Increment the InputGameRowIncrement to move onto the next game.
         InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
     Wend
+
+
+    While Len(Range(InputMilestoneColRange & CStr(InputMilestoneRowIncrement)).Value) > 0
+        
+        ' Start at the correct game - The header ROW
+        ' Set the InputRow to be the HEADER; the InputIncrement
+        InputMilestoneRow = InputMilestoneRowIncrement
+        ' Add one to the InputRow to ignore the Game Dev Start gate specifically.
+        'InputMilestoneRow = InputMilestone + 1
+        ' Iterate through the game in a WHILE loop, until the ROW is at the Ho2C
+        While Cells(InputMilestoneRow, InputMilestoneCol).Value <> "Polish Complete"
+            ' While the InputRow is not past the bottom
+            ' Check the current ROW if it is closed.
+            If Cells(InputMilestoneRow, InputMilestoneCol+4).Value > 0 Then
+                ' The gate is closed, do nothing
+            Else
+                ' The gate is open, print it to the output
+                If Cells(InputMilestoneRow, InputMilestoneCol).Value <> "Pre-Production Review" Then
+                    Cells(TargetRow, TargetCol).Value = Cells(InputMilestoneRowIncrement, InputMilestoneCol).Value
+                    Cells(TargetRow, TargetCol).Interior.Color = Cells(InputMilestoneRowIncrement+1, InputMilestoneCol).Interior.Color
+                    Cells(TargetRow, TargetCol+1).Value = Cells(InputMilestoneRow, InputMilestoneCol).Value
+                    Cells(TargetRow, TargetCol+2).Value = Cells(InputMilestoneRow, InputMilestoneCol+1).Value
+                    ' Iterate the TargetRow by 1
+                    TargetRow = TargetRow + 1
+                End If
+            End If
+            ' Iterate the InputRow
+            InputMilestoneRow = InputMilestoneRow + 1
+        Wend
+        ' Increment the InputGameRowIncrement to move onto the next game.
+        InputMilestoneRowIncrement = InputMilestoneRowIncrement + InputMilestoneRowOffset
+    Wend
+
+    ' Reset the InputMilestone data
+    InputMilestoneRow = ResetMilestoneRow
+    InputMilestoneCol = ResetMilestoneCol
+    InputMilestoneColRange = ResetMilestoneColRange
+    InputMilestoneRowIncrement = ResetMilestoneRowIncrement
+
+    While Len(Range(InputMilestoneColRange & CStr(InputMilestoneRowIncrement)).Value) > 0
+        
+        ' Start at the correct game - The header ROW
+        ' Iterate through all of the gates, storing the ROW of the earliest game date
+
+        ' Set the InputRow to be the HEADER - InputGameRowIncrement
+        InputMilestoneRow = InputMilestoneRowIncrement
+        ' Add one to the InputRow to ignore the Game Dev Start gate specifically.
+        'InputMilestoneRow = InputMilestone + 1
+        ' Iterate through the game in a WHILE loop, until the ROW is at the Ho2C
+        While Cells(InputMilestoneRow, InputMilestoneCol).Value <> "Polish Complete"
+            ' While the InputRow is not past the bottom
+            ' Check the current ROW if it is closed.
+            If Cells(InputMilestoneRow, InputMilestoneCol+4).Value > 0 Then
+                ' The gate is closed, do nothing
+            Else
+                ' The gate is open, print it to the output
+                If Cells(InputMilestoneRow, InputMilestoneCol).Value <> "Pre-Production Review" Then
+                    Cells(TargetRow, TargetCol).Value = Cells(InputMilestoneRowIncrement, InputMilestoneCol).Value
+                    Cells(TargetRow, TargetCol).Interior.Color = Cells(InputMilestoneRowIncrement+1, InputMilestoneCol).Interior.Color
+                    Cells(TargetRow, TargetCol+1).Value = Cells(InputMilestoneRow, InputMilestoneCol).Value
+                    Cells(TargetRow, TargetCol+2).Value = Cells(InputMilestoneRow, InputMilestoneCol+1).Value
+                    ' Iterate the TargetRow by 1
+                    TargetRow = TargetRow + 1
+                End If
+            End If
+            ' Iterate the InputRow
+            InputMilestoneRow = InputMilestoneRow + 1
+        Wend
+        ' Increment the InputGameRowIncrement to move onto the next game.
+        InputMilestoneRowIncrement = InputMilestoneRowIncrement + InputMilestoneRowOffset
+    Wend
+
 
 End Sub
 
@@ -877,63 +973,24 @@ Sub update_CalendarDates()
     Dim PreviousCellDate As Date
 
     ' Initial values for variables
-    InputRow = 5              ' Row 5 is where the data begins
-    InputCol = 19             ' Col 19 is where the data begins
-    InputColRange = "S"       ' S is Col 19, where the data begins
-    InputGameRowIncrement = 5 ' Starts at 5, since 5 is where the data begins
+    InputRow = 6              ' Row 5 is where the data begins
+    InputCol = 2             ' Col 26 is where the data begins
+    InputColRange = "B"       ' B is Col 26, where the data begins
 
     TargetRow = 200             ' Row 200 is where the output data begins
-    TargetCol = 38              ' Col 38 is where the output data begins
-    TargetColRange = "AL"       ' AL is Col 38, where the output data begins
+    TargetCol = 46              ' Col 38 is where the output data begins
+    TargetColRange = "AT"       ' AT is Col 46, where the output data begins
 
-    NextInputGameOffset = 18
-
-    DistanceToBottom = 16 ' There are 16 ROWS between the Header and the Ho2C date.
-    InputStop = 0
-
-    While Len(Range(InputColRange & CStr(InputGameRowIncrement)).Value) > 0
+    While Len(Range(InputColRange & CStr(InputRow)).Value) > 0
         
-        ' Start at the correct game - The header ROW
-        ' Iterate through all of the gates, storing the ROW of the earliest game date.
+        ' Iterate through the Up Next Gates list, stopping when empty.
+        ' Populate the calendar dates from the Up Next Gates.
+        Cells(TargetRow, TargetCol).Value = Cells(InputRow, InputCol).Value
+        Cells(TargetRow, TargetCol+1).Value = Cells(InputRow, InputCol+1).Value
+        Cells(TargetRow, TargetCol+2).Value = Cells(InputRow, InputCol+2).Value
 
-        ' Set the InputRow to be the HEADER - InputGameRowIncrement
-        InputRow = InputGameRowIncrement
-        InputStop = InputRow + DistanceToBottom
-        ' Reset the PreviousCellDate
-        PreviousCellDate = 0
-        ' Iterate through the game in a WHILE loop, until the ROW is at the Ho2C
-        While InputRow <= InputStop
-            ' While the InputRow is not past the bottom
-            ' Check the current ROW if it is closed.
-            If Cells(InputRow, InputCol+1).Value > 0 Then
-                ' The gate is closed, do nothing
-            Else
-                ' The gate is open, print it to the output
-                ' First check if it has the same date as the previous gate
-                If Cells(InputRow, InputCol).Value = PreviousCellDate Then
-                    ' This new gate has the same date as the previous gate,
-                    ' Concatenate it to the end of the previous output
-                    ' First de-incremement the TargetRow by 1.
-                    TargetRow = TargetRow - 1
-                    ' Add this gate's data to the previous one.
-                    Cells(TargetRow, TargetCol+1).Value = Cells(TargetRow, TargetCol+1).Value + VbCrLf + Cells(InputRow, InputCol-1).Value
-                Else
-                    ' Otherwise, new gate, new date, slap it in.
-                    Cells(TargetRow, TargetCol+2).Value = Cells(InputRow, InputCol).Value
-                    Cells(TargetRow, TargetCol+1).Value = Cells(InputRow, InputCol-1).Value
-                    Cells(TargetRow, TargetCol).Value = Cells(InputGameRowIncrement,InputCol-1).Value
-                    ' Save this game's date for future searches
-                    PreviousCellDate = Cells(InputRow, InputCol).Value
-                End If
-                ' Iterate the TargetRow by 1
-                TargetRow = TargetRow + 1
-            End If
-            ' Iterate the InputRow
-            InputRow = InputRow + 1
-        Wend
-
-        ' Increment the InputGameRowIncrement to move onto the next game.
-        InputGameRowIncrement = InputGameRowIncrement + NextInputGameOffset
+        TargetRow = TargetRow + 1
+        InputRow = InputRow + 1
     Wend
 
 End Sub

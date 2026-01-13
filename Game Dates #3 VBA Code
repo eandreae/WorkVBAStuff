@@ -1,0 +1,229 @@
+Sub update_UpNextGates()
+    ' The purpose of this subroutine is to populate the "Up Next Gates Section"
+    ' Last edited by Eric Andreae on 1/13/2026
+
+    ' Variable Declaration *********************************************************
+
+    ' To iterate through the data, I will be using a
+    ' virtual cursor, tracking it with a Row and Col.
+    Dim CursorRow As Integer
+    Dim CursorCol As Integer
+    Dim CursorColLetter As String
+
+    ' I will also use a virtual cursor to track the
+    ' output location, using a Row and Col.
+    Dim OutputRow As Integer
+    Dim OutputCol As Integer
+    Dim OutputColLetter As String
+
+    ' To make things easier, I will store the location
+    ' of the game's name using Row and Col.
+    Dim GameNameRow As Integer
+    Dim GameNameCol As Integer
+    Dim GameNameColLetter As String
+
+    ' I will also store the location of the game's
+    ' internal milestone header using Row and Col
+    Dim MilestoneColLetter As String
+    Dim MilestoneColLetterLeft As String
+    MilestoneColLetterLeft = "J"
+    Dim MilestoneColLetterRight As String
+    MilestoneColLetterRight = "R"
+
+    ' Initial values for variables
+
+    ' Each game is spaced out by 13 rows, will track that with a variable
+    Dim NextGameRowOffset As Integer
+    NextGameRowOffset = 23
+    Dim NextGameColOffset As Integer
+    NextGameColOffset = 8
+
+    MilestoneColLetter = MilestoneColLetterLeft
+
+    ' With the current version of game dates #2, the
+    ' correct cursor location should be Row 6, Col 7, (G).
+    CursorRow = 6
+    CursorCol = 7
+    CursorColLetter = "G"
+    
+    ' And the output location should be Row 6, Col 2 (B).
+    OutputRow = 6
+    OutputCol = 2
+    OutputColLetter = "B"
+
+    ' Final PdM Date Milestone
+    Dim FinalPdMMilestone As String
+    ' Currently, the Final PdM Milestone is "Final Legal Review".
+    ' Define the FinalPdMMilestone String as such. 
+    FinalPdMMilestone = "Final Legal Review"
+
+    ' Final Game Dev Date Milestone
+    Dim FinalGameDevMilestone As String
+    ' Currently, the Final Game Dev Milestone is "Roadmap Date".
+    ' Define the FinalGameDevMilestone String as such. 
+    FinalGameDevMilestone = "Roadmap Date"
+
+    ' Final Core Date Milestone
+    Dim FinalCoreMilestone As String
+    ' Currently, the Final Core Milestone is "Handoff to Compliance"
+    ' Define the FinalCoreMilestone String as such
+    FinalCoreMilestone = "Handoff to Compliance"
+
+    ' Main Loop **************************************************************
+    ' Set to loop infinitely until exit condition is met.
+    Do While True
+        ' The cursor is currently placed at the location of
+        ' The game's name. Store it for future use.
+        GameNameRow = CursorRow
+        GameNameCol = CursorCol
+        GameNameColLetter = CursorColLetter
+
+        ' Increment CursorRow by 1 to begin data collection with Loop #1
+        CursorRow = CursorRow + 1
+
+        ' Loop #1: PdM Dates
+        ' This will loop through the top set of PdM dates at the top of each game.
+        While Cells(CursorRow, CursorCol).Value <> FinalPdMMilestone
+            ' While the cursor is not empty
+            ' Check if the current gate is closed or empty
+            If (Cells(CursorRow, CursorCol + 2).Value > 0) Or (Len(Range(CursorColLetter & CStr(CursorRow)).Value) = 0) Then
+                ' The gate is closed or empty; do nothing
+            Else
+                ' The gate is open, copy it to the output.
+                ' Copy the Game Name and Color
+                Cells(OutputRow, OutputCol).Value = Cells(GameNameRow, GameNameCol).Value
+                Cells(OutputRow, OutputCol).Interior.Color = Cells(GameNameRow, GameNameCol).Interior.Color
+                ' Copy the Gate's Name
+                Cells(OutputRow, OutputCol + 1).Value = Cells(CursorRow, CursorCol).Value
+                ' Copy the Due Date
+                Cells(OutputRow, OutputCol + 2).Value = Cells(CursorRow, CursorCol + 1).Value
+                
+                OutputRow = OutputRow + 1
+            End If
+
+            ' Iterate the cursor by 1
+            CursorRow = CursorRow + 1
+        Wend
+        ' At this point the cursor is now specifically at FinalGameDevMilestone.
+        ' Attempt to output like in Loop #1.
+        If Cells(CursorRow, CursorCol + 2).Value > 0 Then
+            ' The gate is closed, do nothing
+        Else
+            ' The gate is open, copy it to the output.
+            ' Copy the Game Name and Color
+            Cells(OutputRow, OutputCol).Value = Cells(GameNameRow, GameNameCol).Value
+            Cells(OutputRow, OutputCol).Interior.Color = Cells(GameNameRow, GameNameCol).Interior.Color
+            ' Copy the Gate's Name
+            Cells(OutputRow, OutputCol + 1).Value = Cells(CursorRow, CursorCol).Value
+            ' Copy the Due Date
+            Cells(OutputRow, OutputCol + 2).Value = Cells(CursorRow, CursorCol + 1).Value
+                
+            OutputRow = OutputRow + 1
+        End If
+
+        ' Now that the PdM dates of the game have been sent to the output,
+        ' We must move onto the Game Dev Dates loop.
+
+        ' ****************************************************************
+        ' GAME DEV DATES START AT THE CURRENT CURSOR LOCATION + 5 ROWS
+        ' <Last PdM Date> <--Cursor Current Location
+        ' <Empty> 
+        ' <Empty>
+        ' <Game Dev Dates Header>
+        ' <Game Name>
+        ' <Game Dev Date #1> <--Cursor Needed Location, difference of 5 ROWS
+        ' ****************************************************************
+        ' Increment the Cursor down by the above mentioned rows
+        CursorRow = CursorRow + 5
+        
+        ' Loop #2: Game Dev Dates
+        ' Instead of terminating when the Cursor is empty, the cursor
+        ' will iterate until the "FinalGameDevMilestone" is hit. 
+        While Cells(CursorRow, CursorCol).Value <> FinalGameDevMilestone
+            ' While the cursor is not equal to "FinalGameDevMilestone"
+            ' Check if the current gate is closed, or if the current cursor is empty.
+            If (Cells(CursorRow, CursorCol + 2).Value > 0) Or (Len(Range(CursorColLetter & CStr(CursorRow)).Value) = 0) Then
+                ' The gate is closed or the cursor is empty; do nothing.
+            Else
+                ' The gate is open, copy it to the output.
+                ' Copy the Game Name and Color
+                Cells(OutputRow, OutputCol).Value = Cells(GameNameRow, GameNameCol).Value
+                Cells(OutputRow, OutputCol).Interior.Color = Cells(GameNameRow, GameNameCol).Interior.Color
+                ' Copy the Gate's Name
+                Cells(OutputRow, OutputCol + 1).Value = Cells(CursorRow, CursorCol).Value
+                ' Copy the Due Date
+                Cells(OutputRow, OutputCol + 2).Value = Cells(CursorRow, CursorCol + 1).Value
+                
+                OutputRow = OutputRow + 1
+            End If
+
+            ' Iterate the cursor by 1
+            CursorRow = CursorRow + 1
+        Wend
+
+        ' At this point the cursor is now specifically at FinalGameDevMilestone.
+        ' Attempt to output like in Loop #2.
+        If Cells(CursorRow, CursorCol + 2).Value > 0 Then
+            ' The gate is closed, do nothing
+        Else
+            ' The gate is open, copy it to the output.
+            ' Copy the Game Name and Color
+            Cells(OutputRow, OutputCol).Value = Cells(GameNameRow, GameNameCol).Value
+            Cells(OutputRow, OutputCol).Interior.Color = Cells(GameNameRow, GameNameCol).Interior.Color
+            ' Copy the Gate's Name
+            Cells(OutputRow, OutputCol + 1).Value = Cells(CursorRow, CursorCol).Value
+            ' Copy the Due Date
+            Cells(OutputRow, OutputCol + 2).Value = Cells(CursorRow, CursorCol + 1).Value
+                
+            OutputRow = OutputRow + 1
+        End If
+
+        ' At this point it is now time to do one of two things:
+        ' 1. Iterate towards the right and output the next game's dates.
+        ' OR
+        ' 2. Iterate downwards onto the next game series' dates.
+
+        ' Scenario 1: Iterate towards the right.
+        ' **********************************************************************************
+        ' THE NEXT GAME'S HEADER IS GameNameCol + 4
+        ' | <GameNameCol> |        ->         |        ->       |   ->    | <GameNameCol>  |
+        ' |      VVV      |        +1         |        +2       |   +3    |      +4        |
+        ' | <Game Name>   | <Due Date Header> | <Closed Header> | <Empty> | <Game #2 Name> |
+        ' **********************************************************************************
+        ' Before iterating, check if another game's data exists on the right.
+        If Cells(GameNameRow, GameNameCol + 4).Value > 0 Then
+            ' There is a game's data on the right.
+            ' Iterate the cursor to the header of the next game's data.
+            CursorRow = GameNameRow
+            CursorCol = GameNameCol + 4
+            ' Restart the loop from the top
+        Else
+        ' Scenario 2: Iterate downwards to next series.
+        ' Iterate the Cursor downwards until it reaches the FinalCoreMilestone
+        While Cells(CursorRow, CursorCol).Value <> FinalGameDevMilestone
+            ' Iterate the CursorRow until FinalGameDevMilestone is hit.
+            CursorRow = CursorRow + 1
+        Wend
+
+        End If
+
+
+
+    Loop
+
+
+End Sub
+
+Sub update_LastEditedBy()
+    ' This subroutine updates the last edited by field
+    Dim TargetRow As Integer
+    Dim TargetCol As Integer
+    Dim Message As String
+
+    TargetRow = 2
+    TargetCol = 2
+    Message = "Last Edited by Eric Andreae @ "
+
+    Cells(TargetRow, TargetCol).Value = Message & Now
+
+End Sub

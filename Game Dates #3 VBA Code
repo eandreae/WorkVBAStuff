@@ -4,52 +4,33 @@ Sub update_UpNextGates()
 
     ' Variable Declaration *********************************************************
 
+    ' USER DEFINED VARIABLES
+    Dim InitialCursorRow As Integer
+    Dim InitialCursorCol As Integer
+
+    InitialCursorRow = 6
+    InitialCursorCol = 7
+
+    Dim InitialOutputRow As Integer
+    Dim InitialOutputCol As Integer
+
+    InitialOutputRow = 6
+    InitialOutputCol = 2
+
     ' To iterate through the data, I will be using a
     ' virtual cursor, tracking it with a Row and Col.
     Dim CursorRow As Integer
     Dim CursorCol As Integer
-    Dim CursorColLetter As String
 
     ' I will also use a virtual cursor to track the
     ' output location, using a Row and Col.
     Dim OutputRow As Integer
     Dim OutputCol As Integer
-    Dim OutputColLetter As String
 
     ' To make things easier, I will store the location
     ' of the game's name using Row and Col.
     Dim GameNameRow As Integer
     Dim GameNameCol As Integer
-    Dim GameNameColLetter As String
-
-    ' I will also store the location of the game's
-    ' internal milestone header using Row and Col
-    Dim MilestoneColLetter As String
-    Dim MilestoneColLetterLeft As String
-    MilestoneColLetterLeft = "J"
-    Dim MilestoneColLetterRight As String
-    MilestoneColLetterRight = "R"
-
-    ' Initial values for variables
-
-    ' Each game is spaced out by 13 rows, will track that with a variable
-    Dim NextGameRowOffset As Integer
-    NextGameRowOffset = 23
-    Dim NextGameColOffset As Integer
-    NextGameColOffset = 8
-
-    MilestoneColLetter = MilestoneColLetterLeft
-
-    ' With the current version of game dates #2, the
-    ' correct cursor location should be Row 6, Col 7, (G).
-    CursorRow = 6
-    CursorCol = 7
-    CursorColLetter = "G"
-    
-    ' And the output location should be Row 6, Col 2 (B).
-    OutputRow = 6
-    OutputCol = 2
-    OutputColLetter = "B"
 
     ' Final PdM Date Milestone
     Dim FinalPdMMilestone As String
@@ -69,25 +50,45 @@ Sub update_UpNextGates()
     ' Define the FinalCoreMilestone String as such
     FinalCoreMilestone = "Handoff to Compliance"
 
+    ' Iterator Cap Value
+    ' To prevent infinite looping, set an iterator cap
+    Dim IteratorCap As Integer
+    IteratorCap = 100
+
+    ' Cursor Cap Value
+    Dim CursorCap As Integer
+    CursorCap = 0
+
     ' Main Loop **************************************************************
+    ' Place Cursor at Initial Field
+    CursorRow = InitialCursorRow
+    CursorCol = InitialCursorCol
+
+    ' Place Output Cursor at Initial Field
+    OutputRow = InitialOutputRow
+    OutputCol = InitialOutputCol
+
     ' Set to loop infinitely until exit condition is met.
     Do While True
-        ' The cursor is currently placed at the location of
-        ' The game's name. Store it for future use.
+        ' The cursor is currently placed at the location of The game's name. 
+        ' Store it for future use.
         GameNameRow = CursorRow
         GameNameCol = CursorCol
-        GameNameColLetter = CursorColLetter
 
         ' Increment CursorRow by 1 to begin data collection with Loop #1
         CursorRow = CursorRow + 1
 
         ' Loop #1: PdM Dates
         ' This will loop through the top set of PdM dates at the top of each game.
-        While Cells(CursorRow, CursorCol).Value <> FinalPdMMilestone
+
+        ' Set the Maximum downward search value
+        CursorCap = CursorRow + IteratorCap
+
+        While (Cells(CursorRow, CursorCol).Value <> FinalPdMMilestone) And (CursorRow <= CursorCap)
             ' While the cursor is not empty
-            ' Check if the current gate is closed or empty
-            If (Cells(CursorRow, CursorCol + 2).Value > 0) Or (Len(Range(CursorColLetter & CStr(CursorRow)).Value) = 0) Then
-                ' The gate is closed or empty; do nothing
+            ' Check if the current gate is closed or cursor cell is empty
+            If (Cells(CursorRow, CursorCol + 2).Value > 0) Or (Cells(CursorRow, CursorCol).Value = "") Then
+                ' The gate is closed or cursor cell is empty; do nothing
             Else
                 ' The gate is open, copy it to the output.
                 ' Copy the Game Name and Color
@@ -104,6 +105,12 @@ Sub update_UpNextGates()
             ' Iterate the cursor by 1
             CursorRow = CursorRow + 1
         Wend
+
+        ' Check if CursorCap was hit
+        If CursorRow >= CursorCap Then
+            Exit Do
+        End If
+
         ' At this point the cursor is now specifically at FinalGameDevMilestone.
         ' Attempt to output like in Loop #1.
         If Cells(CursorRow, CursorCol + 2).Value > 0 Then
@@ -139,10 +146,14 @@ Sub update_UpNextGates()
         ' Loop #2: Game Dev Dates
         ' Instead of terminating when the Cursor is empty, the cursor
         ' will iterate until the "FinalGameDevMilestone" is hit. 
-        While Cells(CursorRow, CursorCol).Value <> FinalGameDevMilestone
+
+        ' Set the Maximum downward search value
+        CursorCap = CursorRow + IteratorCap
+
+        While (Cells(CursorRow, CursorCol).Value <> FinalGameDevMilestone) And (CursorRow <= CursorCap)
             ' While the cursor is not equal to "FinalGameDevMilestone"
             ' Check if the current gate is closed, or if the current cursor is empty.
-            If (Cells(CursorRow, CursorCol + 2).Value > 0) Or (Len(Range(CursorColLetter & CStr(CursorRow)).Value) = 0) Then
+            If (Cells(CursorRow, CursorCol + 2).Value > 0) Or (Cells(CursorRow, CursorCol).Value = "") Then
                 ' The gate is closed or the cursor is empty; do nothing.
             Else
                 ' The gate is open, copy it to the output.
@@ -160,6 +171,11 @@ Sub update_UpNextGates()
             ' Iterate the cursor by 1
             CursorRow = CursorRow + 1
         Wend
+
+        ' Check if CursorCap was hit
+        If CursorRow >= CursorCap Then
+            Exit Do
+        End If
 
         ' At this point the cursor is now specifically at FinalGameDevMilestone.
         ' Attempt to output like in Loop #2.
@@ -198,17 +214,47 @@ Sub update_UpNextGates()
             CursorCol = GameNameCol + 4
             ' Restart the loop from the top
         Else
-        ' Scenario 2: Iterate downwards to next series.
-        ' Iterate the Cursor downwards until it reaches the FinalCoreMilestone
-        While Cells(CursorRow, CursorCol).Value <> FinalGameDevMilestone
-            ' Iterate the CursorRow until FinalGameDevMilestone is hit.
+            ' Scenario 2: Iterate downwards to next series.
+
+            ' Reset CursorCol
+            CursorCol = InitialCursorCol
+
+            ' Set the Maximum downward search value
+            CursorCap = CursorRow + IteratorCap
+
+            ' Iterate the Cursor downwards until it reaches the FinalCoreMilestone
+            While (Cells(CursorRow, CursorCol).Value <> FinalCoreMilestone) And (CursorRow <= CursorCap)
+                ' Iterate the CursorRow until FinalCoreMilestone is hit.
+                CursorRow = CursorRow + 1
+            Wend
+
+            ' Check if CursorCap was hit
+            If CursorRow >= CursorCap Then
+                Exit Do
+            End If
+
+            ' Iterate the Cursor downwards until it reaches the PdM Header of the next theme
+
+            ' Iterate the Cursor one time to move from it off of the FinalCoreMilestone
             CursorRow = CursorRow + 1
-        Wend
 
+            ' Set the Maximum downward search value
+            CursorCap = CursorRow + IteratorCap
+
+            While (Cells(CursorRow, CursorCol).Value = "") And (CursorRow <= CursorCap)
+                ' Iterate the CursorRow
+                CursorRow = CursorRow + 1
+            Wend
+
+            ' Check if CursorCap was hit
+            If CursorRow >= CursorCap Then
+                Exit Do
+            End If
+
+            ' Iterate the Cursor one more time to move from the header to the Game Name
+            CursorRow = CursorRow + 1
+            ' Restart the loop from the top
         End If
-
-
-
     Loop
 
 
